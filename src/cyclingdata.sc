@@ -18,24 +18,37 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 
 println("mapBuffer: " + mapBuffer)
 
+def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
 
-def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
-  //3.	Get the average total distance and average number of stages of all routes.
-  var stageAmount: Int = 0 //holds the sum of stages of all routes together
-  var totalDistance = 0f
-  val routeAmount = theRouteData.size// number of routes there are
-  for ((k,v) <- theRouteData){
-    stageAmount =stageAmount + v.length
-    v.map(n => totalDistance = totalDistance+ n._3)
-  }
+def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
+  //create a string out of a single route
+  var stageStr =  s"""
+                      |    Name- ${routeTuple._1}
+                      |stage  distance  stage name
+                      |""".stripMargin
 
-  f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
-     |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
-     |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
-     |""".stripMargin
+  routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
 
+  stageStr =stageStr + "\n ---------------------------------------\n"
+  //formattedCyclingData = formattedCyclingData + stageStr
+  stageStr
 }
-println(averageOfAllRoutes(mapBuffer))
+
+
+def allRoutesFormattedText(cycleData: Map[String, List[(Int, String, Float)]]): String = {
+  //the entire cycling data formatted in a human-readable manner
+  var formattedCyclingData =
+    """|---------------------------------------""".stripMargin
+
+  for((k,v) <- cycleData){
+    formattedCyclingData = formattedCyclingData + formatSingleRoute((k,v))
+  }
+  println(formattedCyclingData)
+  //formattedCyclingData
+  ""
+}
+
+allRoutesFormattedText(mapBuffer)
 
 /*
 def allRouteSummaryText(): String ={
@@ -57,32 +70,23 @@ def allRouteSummaryText(): String ={
 allRouteSummaryText()
  */
 
-
 /*
-def allRoutesFormattedText(): String ={
-  //the entire cycling data formatted in a human-readable manner
-  var formattedCyclingData =
-    """|---------------------------------------""".stripMargin
-  for((k,v) <- mapBuffer){
-    //create a string out of every Route and append to the other strings
-    //formatted in a way tha
-    var stageStr =  s"""
-                       |    Name- $k
-                       |stage  distance  stage name
-                       |""".stripMargin
 
-    v.map(n => {
-      stageStr = stageStr+ f"\n| ${n._1}\t  ${n._3}%2.2f km\t${n._2}"
-
-    })
-    stageStr =stageStr + "\n ---------------------------------------\n"
-    formattedCyclingData = formattedCyclingData + stageStr
+def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
+  //3.	Get the average total distance and average number of stages of all routes.
+  var stageAmount: Int = 0 //holds the sum of stages of all routes together
+  var totalDistance = 0f
+  val routeAmount = theRouteData.size// number of routes there are
+  for ((k,v) <- theRouteData){
+    stageAmount =stageAmount + v.length
+    v.map(n => totalDistance = totalDistance+ n._3)
   }
-  println(formattedCyclingData)
-  //formattedCyclingData
-  ""
+
+  f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
+     |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
+     |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
+     |""".stripMargin
+
 }
-
-allRoutesFormattedText()
-*/
-
+println(averageOfAllRoutes(mapBuffer))
+ */

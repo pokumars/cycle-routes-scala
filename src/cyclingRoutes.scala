@@ -89,7 +89,7 @@ object cyclingRoutes extends App {
   }
 
   def showAllRoutes(): Boolean = {
-    println(allRoutesFormattedText)
+    println(allRoutesFormattedText(mapData))
     true
   }
 
@@ -109,28 +109,17 @@ object cyclingRoutes extends App {
   //These are the functions that the primary functions invoke to accomplish
   // what the user wants
 
-  def allRoutesFormattedText(): String ={
+  def allRoutesFormattedText(cycleData: Map[String, List[(Int, String, Float)]]) = {
     //the entire cycling data formatted in a human-readable manner
     var formattedCyclingData =
       """|---------------------------------------""".stripMargin
-    for((k,v) <- mapData){
-      //create a string out of every Route and append to the other strings
-      //formatted in a way tha
-      var stageStr =  s"""
-                       |******** Name- $k ********
-                       |stage  distance  stage name
-                       |""".stripMargin
 
-      //val sum = stageList.map(f => total = total+ f._3)
-      v.map(n => {
-        stageStr = stageStr+ f"\n| ${n._1}\t  ${n._3}%2.2f km\t${n._2}"
-      })
-      stageStr =stageStr + "\n ---------------------------------------\n"
-      formattedCyclingData = formattedCyclingData + stageStr
+    for((k,v) <- cycleData){
+      formattedCyclingData = formattedCyclingData + formatSingleRoute((k,v))
     }
-    //println(theText)
-    formattedCyclingData
+    println(formattedCyclingData)
   }
+
   def allRouteSummaryText() ={
     var formattedRouteSummary =""
 
@@ -165,4 +154,27 @@ object cyclingRoutes extends App {
     avg
 
   }
+
+
+//*****************************************************************************************************
+//Operational functions
+  //These functions make it so that  there is anything I will end up repeating somewhere else,
+  //I can turn it into a function and call it where I need it.
+
+  def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
+
+  def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
+    //create a string out of a single route
+    var stageStr =  s"""
+                       |    Name- ${routeTuple._1}
+                       |stage  distance  stage name
+                       |""".stripMargin
+
+    routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
+
+    stageStr =stageStr + "\n ---------------------------------------\n"
+    //formattedCyclingData = formattedCyclingData + stageStr
+    stageStr
+  }
+
 }
