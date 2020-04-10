@@ -18,6 +18,26 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 
 println("mapBuffer: " + mapBuffer)
 
+
+def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
+  //3.	Get the average total distance and average number of stages of all routes.
+  var stageAmount: Int = 0 //holds the sum of stages of all routes together
+  var totalDistance = 0f
+  val routeAmount = theRouteData.size// number of routes there are
+  for ((k,v) <- theRouteData){
+    stageAmount =stageAmount + v.length
+    v.map(n => totalDistance = totalDistance+ n._3)
+  }
+
+  f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
+     |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
+     |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
+     |""".stripMargin
+
+}
+println(averageOfAllRoutes(mapBuffer))
+
+/*
 def allRouteSummaryText(): String ={
   var formattedRouteSummary =""
 
@@ -35,8 +55,10 @@ def allRouteSummaryText(): String ={
   "formattedCyclingData"
 }
 allRouteSummaryText()
+ */
 
 
+/*
 def allRoutesFormattedText(): String ={
   //the entire cycling data formatted in a human-readable manner
   var formattedCyclingData =
@@ -62,4 +84,5 @@ def allRoutesFormattedText(): String ={
 }
 
 allRoutesFormattedText()
+*/
 

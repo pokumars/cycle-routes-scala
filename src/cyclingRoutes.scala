@@ -5,7 +5,7 @@ import scala.io.StdIn.readLine
 object cyclingRoutes extends App {
   //*************************************************************************
   //READ txt FILE (and print it out)
-  val mapData = readCycleRouteData("cyclingData.txt")
+  val mapData :Map[String, List[(Int,String,Float)]] = readCycleRouteData("cyclingData.txt")
   // print data to check it's been read in correctly
   println("the whole mapData------------->" +mapData)
 
@@ -52,13 +52,14 @@ object cyclingRoutes extends App {
   // saved as opt and unwrap it with a .get match-case. Menu() will run the function and also return
   // a boolean to the while to stop or continue it.
 
-  val actionMap = Map[Int, ()=> Boolean](0 -> quitProgram, 1 -> showAllRoutes, 2 -> summariseRoutes)
+  val actionMap = Map[Int, ()=> Boolean](0 -> quitProgram, 1 -> showAllRoutes, 2 -> summariseRoutes, 3 -> getRouteAverages)
   def readUserOption (): Int = {
     println(
       """|Please select one of the following:
         |   0 - quit program
         |   1 - show all routes
-        |   2 - summary about the routes""".stripMargin)
+        |   2 - summary about the routes
+        |   3 - Show route averages""".stripMargin)
     readInt()
   }
 
@@ -97,6 +98,11 @@ object cyclingRoutes extends App {
     true
   }
 
+  //3.	Get the average total distance and average number of stages of all routes.
+  def getRouteAverages (): Boolean = {
+    averageOfAllRoutes(mapData)
+    true
+  }
 
   //************************************************************************
   //Secondary functions
@@ -125,7 +131,7 @@ object cyclingRoutes extends App {
     //println(theText)
     formattedCyclingData
   }
-  def allRouteSummaryText(): String ={
+  def allRouteSummaryText() ={
     var formattedRouteSummary =""
 
     for((k,v) <- mapData){
@@ -139,6 +145,24 @@ object cyclingRoutes extends App {
       formattedRouteSummary = formattedRouteSummary + routeStr
     }
     println(formattedRouteSummary)
-    "formattedCyclingData"
+  }
+
+  def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {
+    //3.	Get the average total distance and average number of stages of all routes.
+    var stageAmount: Int = 0 //holds the sum of stages of all routes together
+    var totalDistance = 0f
+    val routeAmount = theRouteData.size// number of routes there are
+    for ((k,v) <- theRouteData){
+      stageAmount =stageAmount + v.length
+      v.map(n => totalDistance = totalDistance+ n._3)
+    }
+
+    val avg = f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
+       |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
+       |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
+       |""".stripMargin
+    println (avg)
+    avg
+
   }
 }
