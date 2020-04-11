@@ -114,7 +114,7 @@ object cyclingRoutes extends App {
   }
 
   //************************************************************************
-  //Secondary functions
+  //SECONDARY functions
   //These are the functions that the primary functions invoke to accomplish
   // what the user wants
 
@@ -132,15 +132,8 @@ object cyclingRoutes extends App {
   def allRouteSummaryText() ={
     var formattedRouteSummary =""
 
-    for((k,v) <- mapData){
-      //make a summary of every route
-      var totalRouteDistance = 0f//total distance of a route
-      var routeStr =  s"\t\t$k has ${v.length} stages and a total distance of ".stripMargin
-
-      v.map(n => totalRouteDistance = totalRouteDistance+ n._3)
-
-      routeStr =routeStr + f"${totalRouteDistance}%2.1f km\n" //add computed distance to rest of string
-      formattedRouteSummary = formattedRouteSummary + routeStr
+    for((k,v) <- mapData){//make a summary of every route
+      formattedRouteSummary = formattedRouteSummary + summariseSingleRoute((k,v))
     }
     println(formattedRouteSummary)
   }
@@ -177,7 +170,11 @@ object cyclingRoutes extends App {
 
     routeOptions.get(userSelection) match {
       case None => "This number is not an option. Please start over"
-      case Some(n) => println(formatSingleRoute(n))
+      case Some(n) => {
+        println("\n\n_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* \n")
+        println(summariseSingleRoute(n).stripMargin)
+        println(formatSingleRoute(n).stripMargin)
+      }
     }
 
   }
@@ -185,15 +182,14 @@ object cyclingRoutes extends App {
 
 //*****************************************************************************************************
 //Operational functions
-  //These functions make it so that  there is anything I will end up repeating somewhere else,
-  //I can turn it into a function and call it where I need it.
+  //Since I will use these several times I turned them into functions
 
   def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
 
   def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
     //create a string out of a single route
     var stageStr =  s"""
-                       |    Name- ${routeTuple._1}
+                       |  Name- ${routeTuple._1}
                        |stage  distance  stage name
                        |""".stripMargin
 
@@ -210,7 +206,6 @@ object cyclingRoutes extends App {
     //TODO try fold or foldleft for this instead
     route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
 
-    val routeStr =  f"\t\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
-    routeStr
+    f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
   }
 }

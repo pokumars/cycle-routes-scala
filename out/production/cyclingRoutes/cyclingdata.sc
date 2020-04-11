@@ -19,23 +19,15 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 
 println("mapBuffer: " + mapBuffer)
 
-
-
-
-/*
-var theList = mapBuffer.zipWithIndex.map(_.swap).toMap
-theList(0)
-theList(1)
-theList(2)*/
-
 def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
 
 def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
   //create a string out of a single route
-  var stageStr =  s"""
-                     |    Name- ${routeTuple._1}
-                     |stage  distance  stage name
-                     |""".stripMargin
+  var stageStr =
+    s"""
+     |    Name- ${routeTuple._1}
+     |stage  distance  stage name
+     |""".stripMargin
 
   routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
 
@@ -43,6 +35,17 @@ def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String 
   //formattedCyclingData = formattedCyclingData + stageStr
   stageStr
 }
+
+def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
+  var totalRouteDistance = 0f//total distance of a route
+  //TODO try fold or foldleft for this instead
+  route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+
+  val routeStr =  f"\t\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
+  routeStr
+}
+
+
 
 def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelection: Int) ={
   // map some numbers to the routes so the user can select a number that corresponds to a route
@@ -54,7 +57,8 @@ def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelec
 
   println(routeOptionsString)
 
-
+  println("\n\n_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* \n")
+  println(summariseSingleRoute(routeOptions(userSelection)))
   println(formatSingleRoute(routeOptions(userSelection)))
 }
 userSelectedRoute(mapBuffer, 1)

@@ -23,10 +23,11 @@ def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTu
 
 def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
   //create a string out of a single route
-  var stageStr =  s"""
-                     |    Name- ${routeTuple._1}
-                     |stage  distance  stage name
-                     |""".stripMargin
+  var stageStr =
+    s"""
+     |    Name- ${routeTuple._1}
+     |stage  distance  stage name
+     |""".stripMargin
 
   routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
 
@@ -44,17 +45,8 @@ def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String =
   routeStr
 }
 
-def allRouteSummaryText() ={
-  var formattedRouteSummary =""
 
-  for((k,v) <- mapBuffer){
-    //make a summary of every route
-    formattedRouteSummary = formattedRouteSummary + summariseSingleRoute((k,v))
-  }
-  println(formattedRouteSummary)
-}
-allRouteSummaryText()
-/*
+
 def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelection: Int) ={
   // map some numbers to the routes so the user can select a number that corresponds to a route
   val routeOptions = routes.zipWithIndex.map(_.swap).toMap
@@ -65,7 +57,8 @@ def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelec
 
   println(routeOptionsString)
 
-
+  println("\n\n_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* \n")
+  println(summariseSingleRoute(routeOptions(userSelection)))
   println(formatSingleRoute(routeOptions(userSelection)))
 }
-userSelectedRoute(mapBuffer, 1)*/
+userSelectedRoute(mapBuffer, 1)
