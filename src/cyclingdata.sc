@@ -1,3 +1,5 @@
+import scala.collection.immutable.ListMap
+
 var mapBuffer: Map[String, List[(Int, String, Float)]] = Map()
 
 
@@ -19,46 +21,45 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 
 println("mapBuffer: " + mapBuffer)
 
-def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
-
-def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
-  //create a string out of a single route
-  var stageStr =
-    s"""
-     |    Name- ${routeTuple._1}
-     |stage  distance  stage name
-     |""".stripMargin
-
-  routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
-
-  stageStr =stageStr + "\n ---------------------------------------\n"
-  //formattedCyclingData = formattedCyclingData + stageStr
-  stageStr
-}
-
 def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
   var totalRouteDistance = 0f//total distance of a route
   //TODO try fold or foldleft for this instead
   route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
 
-  val routeStr =  f"\t\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
-  routeStr
+  f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
 }
 
+def getRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
+  var distances:List[Float] = List()
 
+  for((k,v) <- routes){//make a summary of every route
+    var totalRouteDistance = 0f//total distance of a route
+    v.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+    distances =  distances::: totalRouteDistance:: Nil
+  }
 
-def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelection: Int) ={
-  // map some numbers to the routes so the user can select a number that corresponds to a route
-  val routeOptions = routes.zipWithIndex.map(_.swap).toMap
+  val routesLongestFirst = (routes zip distances).toSeq.sortWith(_._2 > _._2).toList
+  var longestFirstSummary = "--------------Routes ordered Longest distance First ------------------ \n"
 
-  var routeOptionsString: String = s"""select the number of the route
-                     |""".stripMargin
-  for((k,v)<- routeOptions){ routeOptionsString = routeOptionsString + s"$k - ${v._1} \n"}
+  for((k,v) <- routesLongestFirst){//make a summary of every route
+    longestFirstSummary = longestFirstSummary + summariseSingleRoute((k._1,k._2))
+  }
 
-  println(routeOptionsString)
-
-  println("\n\n_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* \n")
-  println(summariseSingleRoute(routeOptions(userSelection)))
-  println(formatSingleRoute(routeOptions(userSelection)))
+  println(distances)
+  println(longestFirstSummary)
 }
-userSelectedRoute(mapBuffer, 1)
+getRoutesWithDistance(mapBuffer )
+/*
+def sortedRoutesSummary(sortedRoutes: Map[String, List[(Int, String, Float)]]) ={
+  var formattedRouteSummary =""
+
+  for((k,v) <- mapBuffer){//make a summary of every route
+    formattedRouteSummary = formattedRouteSummary + summariseSingleRoute((k,v))
+  }
+  println(formattedRouteSummary)
+}
+
+def sortedRouteReport (routes: Map[String, List[(Int, String, Float)]]): Unit = {
+
+  //ListMap(routes.toSeq.sortWith(_._2 > _._2):_*)
+}*/

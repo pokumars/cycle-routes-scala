@@ -187,7 +187,7 @@ object cyclingRoutes extends App {
   def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
 
   def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
-    //create a string out of a single route
+    //create a string out of a single route and list all of the stages in detail
     var stageStr =  s"""
                        |  Name- ${routeTuple._1}
                        |stage  distance  stage name
@@ -208,4 +208,6 @@ object cyclingRoutes extends App {
 
     f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
   }
+
+
 }
