@@ -52,14 +52,17 @@ object cyclingRoutes extends App {
   // saved as opt and unwrap it with a .get match-case. Menu() will run the function and also return
   // a boolean to the while to stop or continue it.
 
-  val actionMap = Map[Int, ()=> Boolean](0 -> quitProgram, 1 -> showAllRoutes, 2 -> summariseRoutes, 3 -> getRouteAverages)
+  val actionMap = Map[Int, ()=> Boolean](0 -> quitProgram, 1 -> showAllRoutes, 2 -> summariseRoutes,
+    3 -> getRouteAverages, 5 -> getUserSelectedRoute)
   def readUserOption (): Int = {
     println(
       """|Please select one of the following:
         |   0 - quit program
         |   1 - show all routes
         |   2 - summary about the routes
-        |   3 - Show route averages""".stripMargin)
+        |   3 - Show route averages
+        |   4 - Not yet available
+        |   5 - Select a route""".stripMargin)
     readInt()
   }
 
@@ -101,6 +104,12 @@ object cyclingRoutes extends App {
   //3.	Get the average total distance and average number of stages of all routes.
   def getRouteAverages (): Boolean = {
     averageOfAllRoutes(mapData)
+    true
+  }
+
+  //5
+  def getUserSelectedRoute(): Boolean ={
+    userSelectedRoute(mapData)
     true
   }
 
@@ -152,6 +161,24 @@ object cyclingRoutes extends App {
        |""".stripMargin
     println (avg)
     avg
+  }
+
+  def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]]) ={
+    // map some numbers to the routes so the user can select a number that corresponds to a route
+    val routeOptions = routes.zipWithIndex.map(_.swap).toMap
+
+    var routeOptionsString: String = s"""select the number of the route
+                                        |""".stripMargin
+    for((k,v)<- routeOptions){ routeOptionsString = routeOptionsString + s"$k - ${v._1} \n"}
+
+    println(routeOptionsString)
+
+    val userSelection: Int = readInt()
+
+    routeOptions.get(userSelection) match {
+      case None => "This number is not an option. Please start over"
+      case Some(n) => println(formatSingleRoute(n))
+    }
 
   }
 
@@ -177,4 +204,13 @@ object cyclingRoutes extends App {
     stageStr
   }
 
+
+  def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
+    var totalRouteDistance = 0f//total distance of a route
+    //TODO try fold or foldleft for this instead
+    route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+
+    val routeStr =  f"\t\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
+    routeStr
+  }
 }

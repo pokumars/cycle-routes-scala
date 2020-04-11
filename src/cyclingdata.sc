@@ -1,5 +1,6 @@
 var mapBuffer: Map[String, List[(Int, String, Float)]] = Map()
 
+
 var key ="Oor Wullie Route (GCU)"
 var newList = List((1,"City Chambers",0.75f),(2,"Sir Chris Hoy Velodrome",3.8f),(3,"People's Palace",2.7f),(4,"Riverside Museum",5.4f),(5,"Botanic Gardens",2.4f),(6,"GCU",3.4f))
 mapBuffer = mapBuffer ++ Map(key -> newList)
@@ -23,9 +24,9 @@ def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTu
 def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
   //create a string out of a single route
   var stageStr =  s"""
-                      |    Name- ${routeTuple._1}
-                      |stage  distance  stage name
-                      |""".stripMargin
+                     |    Name- ${routeTuple._1}
+                     |stage  distance  stage name
+                     |""".stripMargin
 
   routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
 
@@ -34,59 +35,37 @@ def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String 
   stageStr
 }
 
+def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
+  var totalRouteDistance = 0f//total distance of a route
+  //TODO try fold or foldleft for this instead
+  route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
 
-def allRoutesFormattedText(cycleData: Map[String, List[(Int, String, Float)]]): String = {
-  //the entire cycling data formatted in a human-readable manner
-  var formattedCyclingData =
-    """|---------------------------------------""".stripMargin
-
-  for((k,v) <- cycleData){
-    formattedCyclingData = formattedCyclingData + formatSingleRoute((k,v))
-  }
-  println(formattedCyclingData)
-  //formattedCyclingData
-  ""
+  val routeStr =  f"\t\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
+  routeStr
 }
 
-allRoutesFormattedText(mapBuffer)
-
-/*
-def allRouteSummaryText(): String ={
+def allRouteSummaryText() ={
   var formattedRouteSummary =""
 
   for((k,v) <- mapBuffer){
     //make a summary of every route
-    var totalRouteDistance = 0f//total distance of a route
-    var routeStr =  s"\t\t$k has ${v.length} stages and a total distance of ".stripMargin
-
-    v.map(n => totalRouteDistance = totalRouteDistance+ n._3)
-
-    routeStr =routeStr + f"${totalRouteDistance}%2.1f km\n" //add computed distance to rest of string
-    formattedRouteSummary = formattedRouteSummary + routeStr
+    formattedRouteSummary = formattedRouteSummary + summariseSingleRoute((k,v))
   }
   println(formattedRouteSummary)
-  "formattedCyclingData"
 }
 allRouteSummaryText()
- */
-
 /*
+def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], userSelection: Int) ={
+  // map some numbers to the routes so the user can select a number that corresponds to a route
+  val routeOptions = routes.zipWithIndex.map(_.swap).toMap
 
-def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
-  //3.	Get the average total distance and average number of stages of all routes.
-  var stageAmount: Int = 0 //holds the sum of stages of all routes together
-  var totalDistance = 0f
-  val routeAmount = theRouteData.size// number of routes there are
-  for ((k,v) <- theRouteData){
-    stageAmount =stageAmount + v.length
-    v.map(n => totalDistance = totalDistance+ n._3)
-  }
+  var routeOptionsString: String = s"""select the number of the route
+                     |""".stripMargin
+  for((k,v)<- routeOptions){ routeOptionsString = routeOptionsString + s"$k - ${v._1} \n"}
 
-  f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
-     |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
-     |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
-     |""".stripMargin
+  println(routeOptionsString)
 
+
+  println(formatSingleRoute(routeOptions(userSelection)))
 }
-println(averageOfAllRoutes(mapBuffer))
- */
+userSelectedRoute(mapBuffer, 1)*/
