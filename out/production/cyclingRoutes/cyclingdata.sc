@@ -1,5 +1,3 @@
-import scala.collection.immutable.ListMap
-
 var mapBuffer: Map[String, List[(Int, String, Float)]] = Map()
 
 
@@ -21,15 +19,92 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 
 println("mapBuffer: " + mapBuffer)
 
+
+//*****************************************************************************************************
+//Operational functions
+//Since I will use these several times I turned them into functions
+
+def formatSingleStage(stageTuple: (Int,String,Float)): String =  f"\n| ${stageTuple._1}\t  ${stageTuple._3}%2.2f km\t${stageTuple._2}"
+
+def formatSingleRoute(routeTuple: (String, List[(Int, String, Float)])): String ={
+  //create a string out of a single route
+  var stageStr =  s"""
+                     |    Name- ${routeTuple._1}
+                     |stage  distance  stage name
+                     |""".stripMargin
+
+  routeTuple._2.map(n => stageStr = stageStr+ formatSingleStage(n))
+
+  stageStr =stageStr + "\n ---------------------------------------\n"
+  //formattedCyclingData = formattedCyclingData + stageStr
+  stageStr
+}
+
 def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
-  var totalRouteDistance = 0f//total distance of a route
-  //TODO try fold or foldleft for this instead
-  route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+
+  val totalRouteDistance = route._2.foldLeft(0f){(acc, cur) => acc+ cur._3}
 
   f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
 }
+//*****************************************************************************************************
 
-def getRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
+
+
+def allRoutesFormattedText(cycleData: Map[String, List[(Int, String, Float)]]) = {
+  //the entire cycling data formatted in a human-readable manner
+  var formattedCyclingData =
+    """|---------------------------------------""".stripMargin
+
+  for((k,v) <- cycleData){
+    formattedCyclingData = formattedCyclingData + formatSingleRoute((k,v))
+  }
+  println(formattedCyclingData)
+}
+println("-------------Test number 1------------------------------")
+allRoutesFormattedText(mapBuffer)
+
+
+def allRouteSummaryText() ={
+  var formattedRouteSummary =""
+
+  for((k,v) <- mapBuffer){
+    //make a summary of every route
+    var totalRouteDistance = 0f//total distance of a route
+    var routeStr =  s"\t\t$k has ${v.length} stages and a total distance of ".stripMargin
+
+    v.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+
+    routeStr =routeStr + f"${totalRouteDistance}%2.1f km\n" //add computed distance to rest of string
+    formattedRouteSummary = formattedRouteSummary + routeStr
+  }
+  println(formattedRouteSummary)
+
+}
+println("-------------Test number 2------------------------------")
+allRouteSummaryText()
+
+
+def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
+  //3.	Get the average total distance and average number of stages of all routes.
+  var stageAmount: Int = 0 //holds the sum of stages of all routes together
+  var totalDistance = 0f
+  val routeAmount = theRouteData.size// number of routes there are
+  for ((k,v) <- theRouteData){
+    stageAmount =stageAmount + v.length
+    v.map(n => totalDistance = totalDistance+ n._3)
+  }
+
+  f"""  There are $routeAmount routes. On average each route has roughly ${stageAmount/routeAmount} stages.
+     |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
+     |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
+     |""".stripMargin
+
+}
+println("-------------Test number 3------------------------------")
+println(averageOfAllRoutes(mapBuffer))
+
+
+def sortRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
   var distances:List[Float] = List()
 
   for((k,v) <- routes){//make a summary of every route
@@ -45,11 +120,12 @@ def getRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
     longestFirstSummary = longestFirstSummary + summariseSingleRoute((k._1,k._2))
   }
 
-  println(distances)
+  //println(distances)
   println(longestFirstSummary)
 }
-getRoutesWithDistance(mapBuffer )
-/*
+println("-------------Test number 4 ------------------------------")
+sortRoutesWithDistance(mapBuffer )
+
 def sortedRoutesSummary(sortedRoutes: Map[String, List[(Int, String, Float)]]) ={
   var formattedRouteSummary =""
 
@@ -59,7 +135,32 @@ def sortedRoutesSummary(sortedRoutes: Map[String, List[(Int, String, Float)]]) =
   println(formattedRouteSummary)
 }
 
-def sortedRouteReport (routes: Map[String, List[(Int, String, Float)]]): Unit = {
 
-  //ListMap(routes.toSeq.sortWith(_._2 > _._2):_*)
-}*/
+def userSelectedRoute(routes: Map[String, List[(Int, String, Float)]], testSelection: Int) ={
+  // map some numbers to the routes so the user can select a number that corresponds to a route
+  val routeOptions = routes.zipWithIndex.map(_.swap).toMap
+
+  var routeOptionsString: String = s"""select the number of the route
+                                      |""".stripMargin
+  for((k,v)<- routeOptions){ routeOptionsString = routeOptionsString + s"$k - ${v._1} \n"}
+
+  println(routeOptionsString)
+
+  val userSelection: Int = testSelection
+
+  routeOptions.get(userSelection) match {
+    case None => "This number is not an option. Please start over"
+    case Some(n) => {
+      println("\n\n_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_*_* \n")
+      println(summariseSingleRoute(n).stripMargin)
+      println(formatSingleRoute(n).stripMargin)
+    }
+  }
+
+}
+println("-------------Test number 5 ------------------------------")
+//Test that an option that exists gives a route
+userSelectedRoute(mapBuffer, 1)
+// Test that an option that does not exits asks you to start over
+userSelectedRoute(mapBuffer, 5)
+
