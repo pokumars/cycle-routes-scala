@@ -22,9 +22,10 @@ mapBuffer = mapBuffer ++ Map(key -> newList)
 println("mapBuffer: " + mapBuffer)
 
 def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
-  var totalRouteDistance = 0f//total distance of a route
+  //var totalRouteDistance = 0f//total distance of a route
   //TODO try fold or foldleft for this instead
-  route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+  //route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+  val totalRouteDistance = route._2.foldLeft(0f){(acc, cur) => acc+ cur._3}
 
   f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
 }
@@ -45,7 +46,7 @@ def getRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
     longestFirstSummary = longestFirstSummary + summariseSingleRoute((k._1,k._2))
   }
 
-  println(distances)
+  //println(distances)
   println(longestFirstSummary)
 }
 getRoutesWithDistance(mapBuffer )

@@ -53,7 +53,7 @@ object cyclingRoutes extends App {
   // a boolean to the while to stop or continue it.
 
   val actionMap = Map[Int, ()=> Boolean](0 -> quitProgram, 1 -> showAllRoutes, 2 -> summariseRoutes,
-    3 -> getRouteAverages, 5 -> getUserSelectedRoute)
+    3 -> getRouteAverages, 4 -> sortRoutesByDistanceLongestFirst, 5 -> getUserSelectedRoute)
   def readUserOption (): Int = {
     println(
       """|Please select one of the following:
@@ -61,7 +61,7 @@ object cyclingRoutes extends App {
         |   1 - show all routes
         |   2 - summary about the routes
         |   3 - Show route averages
-        |   4 - Not yet available
+        |   4 - sort routes longest-first
         |   5 - Select a route""".stripMargin)
     readInt()
   }
@@ -69,7 +69,7 @@ object cyclingRoutes extends App {
   var selectedOption = 0
   do {
     selectedOption = readUserOption()
-  }while(runMenuOption(selectedOption))//smth is true or false
+  }while(runMenuOption(selectedOption))//selectedOption is true or false
 
   def runMenuOption(choice: Int): Boolean = {
     actionMap.get(choice) match {
@@ -87,7 +87,7 @@ object cyclingRoutes extends App {
   // They will return a boolean that will keep the do-while running or not
 
   def quitProgram(): Boolean = {
-    println("You have chosen to quit the program")
+    println("You have chosen to quit the program. \nGoodbye!")
     false
   }
 
@@ -103,7 +103,14 @@ object cyclingRoutes extends App {
 
   //3.	Get the average total distance and average number of stages of all routes.
   def getRouteAverages (): Boolean = {
-    averageOfAllRoutes(mapData)
+    println (averageOfAllRoutes(mapData))
+    true
+  }
+
+  //4.	Get a report of all routes in descending order of total distance with a summary
+  // showing the overall average total distance and overall average number of stages for all routes.
+  def sortRoutesByDistanceLongestFirst():Boolean = {
+    sortRoutesWithDistance(mapData)
     true
   }
 
@@ -152,7 +159,7 @@ object cyclingRoutes extends App {
        |  The average distance per route is ${totalDistance/routeAmount}%.1f km.
        |  The average distance per stage is ${totalDistance/stageAmount}%.1f km.
        |""".stripMargin
-    println (avg)
+
     avg
   }
 
@@ -179,6 +186,29 @@ object cyclingRoutes extends App {
 
   }
 
+  //sort routes longest-total-distance first
+  def sortRoutesWithDistance (routes: Map[String, List[(Int, String, Float)]]) = {
+    var distances:List[Float] = List()
+
+    for((k,v) <- routes){//make a summary of every route
+      var totalRouteDistance = 0f//total distance of a route
+      v.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+      distances =  distances::: totalRouteDistance:: Nil
+    }
+
+    val routesLongestFirst = (routes zip distances).toSeq.sortWith(_._2 > _._2).toList
+    var longestFirstSummary = "---------------------Routes ordered Longest distance First ------------------------- \n"
+
+    for((k,v) <- routesLongestFirst){//make a summary of every route
+      longestFirstSummary = longestFirstSummary + summariseSingleRoute((k._1,k._2))
+    }
+
+    println(longestFirstSummary)
+    println(averageOfAllRoutes(routes))
+  }
+
+
+
 
 //*****************************************************************************************************
 //Operational functions
@@ -202,9 +232,11 @@ object cyclingRoutes extends App {
 
 
   def summariseSingleRoute (route: (String, List[(Int, String, Float)])): String = {
-    var totalRouteDistance = 0f//total distance of a route
+    /*var totalRouteDistance = 0f//total distance of a route
     //TODO try fold or foldleft for this instead
-    route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)
+    route._2.map(n => totalRouteDistance = totalRouteDistance+ n._3)*/
+    
+    val totalRouteDistance = route._2.foldLeft(0f){(acc, cur) => acc+ cur._3}
 
     f"\t${route._1} has ${route._2.length} stages and a total distance of ${totalRouteDistance}%2.1f km\n".stripMargin
   }
