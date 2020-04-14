@@ -83,7 +83,6 @@ def allRouteSummaryText() ={
 println("-------------Test number 2------------------------------")
 allRouteSummaryText()
 
-
 def averageOfAllRoutes(theRouteData :Map[String, List[(Int,String,Float)]]): String = {//number 4
   //3.	Get the average total distance and average number of stages of all routes.
   var stageAmount: Int = 0 //holds the sum of stages of all routes together
